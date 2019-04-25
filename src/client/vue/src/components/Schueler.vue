@@ -36,6 +36,14 @@
                     Edit
                 </button>
               </th>
+              <th>
+                <button type="button"
+                        class="btn btn-success btn-sm"
+                        v-b-modal.todolistitem-modal
+                        @click="addtodolistitem(todolist)">
+                    Edit
+                </button>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -157,6 +165,26 @@
         <b-button type="reset" variant="danger">Cancel</b-button>
       </b-form>
     </b-modal>
+
+    <b-modal ref="addtodolistitemModal"
+             id="todolistitem-modal"
+            username="Add a new Item"
+            hide-footer>
+      <b-form @submit="onSubmitItem" @reset="onResetItem" class="w-100">
+        <b-form-group id="form-todolistitem-group"
+                      label="name:"
+                      label-for="form-todolistitem-input">
+            <b-form-input id="form-todolistitem-input"
+                          type="text"
+                          v-model="addtodolistItemForm.name"
+                          required
+                          placeholder="Enter Item name">
+            </b-form-input>
+        </b-form-group>
+        <b-button type="submit" variant="primary">Submit</b-button>
+        <b-button type="reset" variant="danger">Reset</b-button>
+      </b-form>
+    </b-modal>
   </div>
 </template>
 
@@ -175,6 +203,10 @@ export default {
       },
       addtodolistForm: {
         name: '',
+      },
+      addtodolistItemForm: {
+        name: '',
+        id: '',
       },
       editForm: {
         id: '',
@@ -231,6 +263,19 @@ export default {
         this.gettodolist();
       });
     },
+    addtodolistItem(payload,id) {
+      const path = `http://localhost:5000/${id}?token=${this.token}`;
+      payload['token']=this.token;
+      axios.post(path, payload).then(() => {
+        this.gettodolist();
+        this.message = 'item added!';
+        this.showMessage = true;
+      }).catch((error) => {
+        // eslint-disable-next-line
+        console.error(error);
+        this.gettodolist();
+      });
+    },
     updatetodolist(payload, todolistID) {
       const path = `http://localhost:5000/${todolistID}`;
       payload['token']=this.token;
@@ -258,6 +303,8 @@ export default {
     },
     initForm() {
       this.addtodolistForm.name = '';
+      this.addtodolistItemForm.name = '';
+      this.addtodolistItemForm.id = '';
       this.editForm.id = '';
       this.editForm.name = '';
       this.editForm.locked = '';
@@ -270,6 +317,16 @@ export default {
         name: this.addtodolistForm.name,
       };
       this.addtodolist(payload);
+      this.initForm();
+    },
+    onSubmitItem(evt) {
+      evt.preventDefault();
+      this.$refs.addtodolistitemModal.hide();
+      const payload = {
+        name: this.addtodolistItemForm.name,
+      };
+
+      this.addtodolistItem(payload,this.addtodolistItemForm.id);
       this.initForm();
     },
     onSubmitUpdate(evt) {
@@ -288,6 +345,11 @@ export default {
       this.$refs.addtodolistModal.hide();
       this.initForm();
     },
+    onResetItem(evt) {
+      evt.preventDefault();
+      this.$refs.addtodolistModal.hide();
+      this.initForm();
+    },
     onResetUpdate(evt) {
       evt.preventDefault();
       this.$refs.edittodolistModal.hide();
@@ -299,6 +361,9 @@ export default {
     },
     edittodolist(todolist) {
       this.editForm = todolist;
+    },
+    addtodolistitem(todolist) {
+      this.addtodolistItemForm.id= todolist.id;
     },
 
   },
