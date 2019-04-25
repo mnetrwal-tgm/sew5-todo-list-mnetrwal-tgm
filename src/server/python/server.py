@@ -106,15 +106,20 @@ def ping_pong():
     return "pong",status.HTTP_200_OK
 
 
+def checkname(post_data):
+    ret=False
+    if post_data and post_data.get('name')!="":
+        ret=True
+    return ret
 
 def checkItemOnList(listid,post_data):
     ret=False
-    if post_data['itemname']!="":
+    if checkname(post_data):
         for list in TODOLISTS:
             if list['id']==listid:
                 ret=True
                 for item in list['items']:
-                    if item['name'] == post_data['itemname']:
+                    if item['name'] == post_data.get('name'):
                         ret=False
                 break
     return ret
@@ -123,16 +128,19 @@ def checkItemOnList(listid,post_data):
 @app.route('/todolists', methods=['GET', 'POST'])
 @token_required
 def all_lists():
-    if request.method == 'POST':
+    if request.method == 'POST' :
         post_data = request.get_json()
-        TODOLISTS.append({
-            'id': uuid.uuid4().hex,
-            'name': post_data.get('name'),
-            'lock': False,
-            'items': []
-        })
-        saveData()
-        return status.HTTP_201_CREATED
+        if checkname(post_data):
+            TODOLISTS.append({
+                'id': uuid.uuid4().hex,
+                'name': post_data['name'],
+                'lock': False,
+                'items': []
+            })
+            saveData()
+            return 'successfully created',status.HTTP_201_CREATED
+        else:
+            return 'no name',status.HTTP_406_NOT_ACCEPTABLE
     else:
         return json.dumps(TODOLISTS), status.HTTP_200_OK
 
@@ -160,13 +168,12 @@ def single_todolist(listid):
                     return 'List locked', status.HTTP_400_BAD_REQUEST
                 TODOLISTS[idx]=list
                 saveData()
-                return status.HTTP_200_OK
+                return 'list modified',status.HTTP_200_OK
     if request.method == 'DELETE':
-        print('Here')
         if remove_list(listid):
-            return status.HTTP_200_OK
+            return 'list removed',status.HTTP_200_OK
         else:
-            return status.HTTP_404_NOT_FOUND
+            return 'list not found',status.HTTP_404_NOT_FOUND
 
 @app.route('/<listid>/items', methods=['GET', 'POST'])
 @token_required
@@ -177,14 +184,14 @@ def all_todoitems(listid):
             for idx,list in enumerate(TODOLISTS):
                 if list['id'] == listid:
                     list['items'].append({
-                        'name':post_data['itemname'],
+                        'name':post_data['name'],
                         'status':True
                     })
                     TODOLISTS[idx]=list
             saveData()
-            return status.HTTP_201_CREATED
+            return 'created item',status.HTTP_201_CREATED
         else:
-            return status.HTTP_404_NOT_FOUND
+            return 'id not found',status.HTTP_404_NOT_FOUND
     else:
         for list in TODOLISTS:
             if list['id']==listid:
@@ -195,26 +202,23 @@ def all_todoitems(listid):
 def one_todoitem(listid,itemname):
     if request.method in ['PUT','DELETE','GET']:
         post_data = request.get_json()
-        if checkItemOnList(listid,post_data):
-            for idx,list in enumerate(TODOLISTS):
-                if list['id'] == listid:
-                    for item in list['items']:
-                        if item['name']==itemname:
-                            itemdupe=item
-                            if request.method=='DELETE':
-                                list['items'].remove(item)
-                            if request.method=='PUT':
-                                itemdupe['name']=post_data['name']
-                                itemdupe['status']=post_data['status']
-                                list.append(itemdupe)
-                            if request.method=='GET':
-                                return json.dumps(itemdupe)
-                            TODOLISTS[idx]=list
-                            saveData()
-                            return status.HTTP_200_OK
-        else:
-            return status.HTTP_404_NOT_FOUND
-    return status.HTTP_404_NOT_FOUND
+        for idx,list in enumerate(TODOLISTS):
+            if list['id'] == listid:
+                for item in list['items']:
+                    if item['name']==itemname:
+                        itemdupe=item
+                        if request.method=='DELETE' or request.method=='PUT':
+                            list['items'].remove(item)
+                        if request.method=='PUT':
+                            itemdupe['name']=post_data['name']
+                            itemdupe['status']=post_data['status']
+                            list['items'].append(itemdupe)
+                        if request.method=='GET':
+                            return json.dumps(itemdupe),status.HTTP_200_OK
+                        TODOLISTS[idx]=list
+                        saveData()
+                        return 'OK',status.HTTP_200_OK
+    return 'id not found',status.HTTP_404_NOT_FOUND
 
 
 def remove_list(listid):

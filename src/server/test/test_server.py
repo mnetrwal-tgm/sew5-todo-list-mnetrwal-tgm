@@ -23,7 +23,7 @@ def authtoken(client):
 def saneid(client,authtoken):
     res = client.get('/todolists?token=%s'%authtoken)
     saneid = json.loads(res.data.decode('UTF-8'))[0]['id']
-    yield saneid
+    return saneid
 
 # Sanity
 
@@ -80,16 +80,16 @@ def test_post_item(client,authtoken,saneid):
 
 def test_put_list(client,authtoken,saneid):
     res = client.get('/%s?token=%s' % (saneid, authtoken))
-    data=res.data
+    data=json.loads(res.data)
     data['name']="Lorem"
     res = client.put('/%s?token=%s'%(saneid,authtoken), json=data)
     assert 200 == res.status_code
 
 def test_put_item(client,authtoken,saneid):
     res = client.get('/%s?token=%s' % (saneid, authtoken))
-    data=res.data
-    data['items'][0]['status']=False
-    itname=data['items'][0]['name']
+    data=json.loads(res.data)
+    data['items'][len(data['items'])-1]['status']=False
+    itname=str(data['items'][len(data['items'])-1]['name'])
     res = client.put('/%s/%s?token=%s'%(saneid,itname,authtoken), json=data['items'][0])
     assert 200 == res.status_code
 
@@ -97,7 +97,7 @@ def test_put_item(client,authtoken,saneid):
 
 def test_lock(client,authtoken,saneid):
     res = client.get('/%s?token=%s' % (saneid, authtoken))
-    data = res.data
+    data = json.loads(res.data)
     data['lock'] = True
     res = client.put('/%s?token=%s' % (saneid, authtoken), json=data)
     assert 200 == res.status_code
@@ -108,8 +108,8 @@ def test_lock(client,authtoken,saneid):
 
 def test_delete_item(client,authtoken,saneid):
     res = client.get('/%s?token=%s' % (saneid, authtoken))
-    data = res.data
-    itname = data['items'][0]['name']
+    data = json.loads(res.data)
+    itname = str(data['items'][len(data['items'])-1]['name'])
     res = client.delete('/%s/%s?token=%s' % (saneid, itname, authtoken))
     assert 200 == res.status_code
 
