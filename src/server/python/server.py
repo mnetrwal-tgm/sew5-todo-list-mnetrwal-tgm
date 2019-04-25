@@ -3,6 +3,7 @@ import uuid
 import jwt
 import datetime
 import os
+from gevent.pywsgi import WSGIServer
 
 from functools import wraps
 
@@ -157,6 +158,7 @@ def single_todolist(listid):
                 saveData()
                 return status.HTTP_200_OK
     if request.method == 'DELETE':
+        print('Here')
         if remove_list(listid):
             return status.HTTP_200_OK
         else:
@@ -226,4 +228,5 @@ def saveData():
 
 
 if __name__ == '__main__':
-    app.run()
+    http_server=WSGIServer(('',5000),app)
+    http_server.serve_forever()
