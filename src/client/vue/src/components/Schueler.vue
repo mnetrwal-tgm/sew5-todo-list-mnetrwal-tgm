@@ -15,12 +15,12 @@
         <button type="button" class="btn btn-success btn-sm" v-b-modal.todolist-modal>
           Add List</button>
         <br><br>
-        <!-- todolist table -->
+        <!-- todolist tables -->
         <table class="table table-hover" v-for="(todolist, index) in todolists" :key="index" >
           <thead>
             <tr>
               <th scope="col">{{todolist.name}}</th>
-              <th></th>
+              <th><input type="checkbox" :checked="todolists.locked" disabled/></th>
               <th>
                 <button type="button"
                         class="btn btn-danger btn-sm"
@@ -41,7 +41,7 @@
                         class="btn btn-success btn-sm"
                         v-b-modal.todolistitem-modal
                         @click="addtodolistitem(todolist)">
-                    Edit
+                    Create Item
                 </button>
               </th>
             </tr>
@@ -134,7 +134,8 @@
             <b-form-checkbox value="true">Lock</b-form-checkbox>
           </b-form-checkbox-group>
         </b-form-group>
-        <table v-for="item,index in editForm.items" :key="index">
+        <table v-for="(item,index) in editForm.items" v-bind:key="index"
+               :disabled="editForm.locked">
           <tr>
             <td>
               <b-form-group id="form-itemname-edit-group"
@@ -147,15 +148,22 @@
                               placeholder="Enter item name">
                 </b-form-input>
               </b-form-group>
+            </td><td>
               <b-form-group id="form-locked-edit-group"
                             label-for="form-locked-edit-input">
 
                 <b-form-checkbox-group id="form-locked-edit-input"
                               v-model="editForm.items[index].status"
                 >
-                  <b-form-checkbox value="true">Done</b-form-checkbox>
+                  <b-form-checkbox value="true">Open</b-form-checkbox>
                 </b-form-checkbox-group>
               </b-form-group>
+          </td><td>
+              <button type="button"
+                        class="btn btn-danger btn-sm"
+                        @click="onDeletetodolistitem(editForm,item)">
+                    Delete
+                </button>
             </td>
           </tr>
         </table>
@@ -252,7 +260,8 @@ export default {
     },
     addtodolist(payload) {
       const path = `http://localhost:5000/todolists?token=${this.token}`;
-      payload['token']=this.token;
+      // eslint-disable-next-line
+      payload.token = this.token;
       axios.post(path, payload).then(() => {
         this.gettodolist();
         this.message = 'todolist added!';
@@ -263,9 +272,8 @@ export default {
         this.gettodolist();
       });
     },
-    addtodolistItem(payload,id) {
-      const path = `http://localhost:5000/${id}?token=${this.token}`;
-      payload['token']=this.token;
+    addtodolistItem(payload, id) {
+      const path = `http://localhost:5000/${id}/items?token=${this.token}`;
       axios.post(path, payload).then(() => {
         this.gettodolist();
         this.message = 'item added!';
@@ -277,8 +285,7 @@ export default {
       });
     },
     updatetodolist(payload, todolistID) {
-      const path = `http://localhost:5000/${todolistID}`;
-      payload['token']=this.token;
+      const path = `http://localhost:5000/${todolistID}?token=${this.token}`;
       axios.put(path, payload).then(() => {
         this.gettodolist();
         this.message = 'todolist updated!';
@@ -290,10 +297,30 @@ export default {
       });
     },
     removetodolist(todolistID) {
-      const path = `http://localhost:5000/${todolistID}`;
-      axios.delete(path, { token: this.token }).then(() => {
+      const path = `http://localhost:5000/${todolistID}?token=${this.token}`;
+      axios.delete(path).then(() => {
         this.gettodolist();
         this.message = 'todolist removed!';
+        this.showMessage = true;
+      }).catch((error) => {
+        // eslint-disable-next-line
+        console.error(error);
+        this.gettodolist();
+      });
+    },
+    onDeletetodolistitem(eform, item) {
+      const path = `http://localhost:5000/${eform.id}/${item.name}?token=${this.token}`;
+      axios.delete(path).then(() => {
+        this.gettodolist();
+        axios.get(`http://localhost:5000/${eform.id}?token=${this.token}`).then((res) => {
+          this.edittodolist(res.data);
+        }).catch((error) => {
+          // eslint-disable-next-line
+          console.error(error);
+          this.$refs.addtodolistitemModal.hide();
+          this.initForm();
+        });
+        this.message = 'item removed!';
         this.showMessage = true;
       }).catch((error) => {
         // eslint-disable-next-line
@@ -326,7 +353,7 @@ export default {
         name: this.addtodolistItemForm.name,
       };
 
-      this.addtodolistItem(payload,this.addtodolistItemForm.id);
+      this.addtodolistItem(payload, this.addtodolistItemForm.id);
       this.initForm();
     },
     onSubmitUpdate(evt) {
@@ -347,7 +374,7 @@ export default {
     },
     onResetItem(evt) {
       evt.preventDefault();
-      this.$refs.addtodolistModal.hide();
+      this.$refs.addtodolistitemModal.hide();
       this.initForm();
     },
     onResetUpdate(evt) {
@@ -363,7 +390,7 @@ export default {
       this.editForm = todolist;
     },
     addtodolistitem(todolist) {
-      this.addtodolistItemForm.id= todolist.id;
+      this.addtodolistItemForm.id = todolist.id;
     },
 
   },
