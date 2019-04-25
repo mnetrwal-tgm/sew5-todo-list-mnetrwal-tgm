@@ -163,7 +163,7 @@ def single_todolist(listid):
                     list['lock'] = post_data['lock']
                     list['items'] = post_data['items']
                 elif list['lock'] != post_data['lock']:
-                    list['lock'] = not post_data['lock']
+                    list['lock'] = post_data['lock']
                 else:
                     return 'List locked', status.HTTP_400_BAD_REQUEST
                 TODOLISTS[idx]=list
@@ -183,11 +183,14 @@ def all_todoitems(listid):
         if checkItemOnList(listid,post_data):
             for idx,list in enumerate(TODOLISTS):
                 if list['id'] == listid:
-                    list['items'].append({
-                        'name':post_data['name'],
-                        'status':True
-                    })
-                    TODOLISTS[idx]=list
+                    if not list['lock']:
+                        list['items'].append({
+                            'name':post_data['name'],
+                            'status':True
+                        })
+                        TODOLISTS[idx]=list
+                    else:
+                        return 'list locked',status.HTTP_400_BAD_REQUEST
             saveData()
             return 'created item',status.HTTP_201_CREATED
         else:
@@ -204,20 +207,23 @@ def one_todoitem(listid,itemname):
         post_data = request.get_json()
         for idx,list in enumerate(TODOLISTS):
             if list['id'] == listid:
-                for item in list['items']:
-                    if item['name']==itemname:
-                        itemdupe=item
-                        if request.method=='DELETE' or request.method=='PUT':
-                            list['items'].remove(item)
-                        if request.method=='PUT':
-                            itemdupe['name']=post_data['name']
-                            itemdupe['status']=post_data['status']
-                            list['items'].append(itemdupe)
-                        if request.method=='GET':
-                            return json.dumps(itemdupe),status.HTTP_200_OK
-                        TODOLISTS[idx]=list
-                        saveData()
-                        return 'OK',status.HTTP_200_OK
+                if not list['lock'] or request.method==['get']:
+                    for item in list['items']:
+                        if item['name']==itemname:
+                            itemdupe=item
+                            if request.method=='DELETE' or request.method=='PUT':
+                                list['items'].remove(item)
+                            if request.method=='PUT':
+                                itemdupe['name']=post_data['name']
+                                itemdupe['status']=post_data['status']
+                                list['items'].append(itemdupe)
+                            if request.method=='GET':
+                                return json.dumps(itemdupe),status.HTTP_200_OK
+                            TODOLISTS[idx]=list
+                            saveData()
+                            return 'OK',status.HTTP_200_OK
+                else:
+                    return 'list locked',status.HTTP_400_BAD_REQUEST
     return 'id not found',status.HTTP_404_NOT_FOUND
 
 

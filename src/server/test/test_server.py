@@ -103,6 +103,9 @@ def test_lock(client,authtoken,saneid):
     assert 200 == res.status_code
     res = client.put('/%s?token=%s' % (saneid, authtoken), json=data)
     assert 400 == res.status_code
+    data['lock'] = False
+    res = client.put('/%s?token=%s' % (saneid, authtoken), json=data)
+    assert 200 == res.status_code
 
 # Delete
 
