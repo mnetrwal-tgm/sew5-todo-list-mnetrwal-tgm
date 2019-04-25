@@ -28,19 +28,20 @@
                     Delete
                 </button>
               </th>
+              <th>
+                <button type="button"
+                        class="btn btn-warning btn-sm"
+                        v-b-modal.todolist-update-modal
+                        @click="edittodolist(todolist)">
+                    Edit
+                </button>
+              </th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(item,index2) in todolist.items" :key="index2">
               <td>{{ item.name }}</td>
               <td><input type="checkbox" :checked="!item.status" disabled/></td>
-              <td>
-                <button type="button"
-                        class="btn btn-danger btn-sm"
-                        @click="onDeletetodolistItem(todolist)">
-                    Delete
-                </button>
-              </td>
             </tr>
           </tbody>
         </table>
@@ -103,39 +104,54 @@
 
     <b-modal ref="edittodolistModal"
              id="todolist-update-modal"
-             username="Update"
+             username="Edit todolist"
              hide-footer>
       <b-form @submit="onSubmitUpdate" @reset="onResetUpdate" class="w-100">
-        <b-form-group id="form-username-edit-group"
-                      label="username:"
-                      label-for="form-username-edit-input">
-          <b-form-input id="form-username-edit-input"
+        <b-form-group id="form-name-edit-group"
+                      label="name:"
+                      label-for="form-name-edit-input">
+          <b-form-input id="form-name-edit-input"
                         type="text"
-                        v-model="editForm.username"
+                        v-model="editForm.name"
                         required
-                        placeholder="Enter username">
+                        placeholder="Enter name">
           </b-form-input>
         </b-form-group>
-        <b-form-group id="form-email-edit-group"
-                      label="email:"
-                      label-for="form-email-edit-input">
-          <b-form-input id="form-email-edit-input"
-                        type="email"
-                        v-model="editForm.email"
-                        required
-                        placeholder="Enter email">
-          </b-form-input>
+        <b-form-group id="form-locked-edit-group"
+                      label-for="form-locked-edit-input">
+
+          <b-form-checkbox-group id="form-locked-edit-input"
+                        v-model="editForm.locked"
+          >
+            <b-form-checkbox value="true">Lock</b-form-checkbox>
+          </b-form-checkbox-group>
         </b-form-group>
-        <b-form-group id="form-pic-edit-group"
-                      label="Purchase pic:"
-                      label-for="form-pic-edit-input">
-          <b-form-input id="form-pic-edit-input"
-                        type="text"
-                        v-model="editForm.pic"
-                        required
-                        placeholder="Enter pic">
-          </b-form-input>
-        </b-form-group>
+        <table v-for="item,index in editForm.items" :key="index">
+          <tr>
+            <td>
+              <b-form-group id="form-itemname-edit-group"
+                            label="itemname:"
+                            label-for="form-itemname-edit-input">
+                <b-form-input id="form-itemname-edit-input"
+                              type="text"
+                              v-model="editForm.items[index].name"
+                              required
+                              placeholder="Enter item name">
+                </b-form-input>
+              </b-form-group>
+              <b-form-group id="form-locked-edit-group"
+                            label-for="form-locked-edit-input">
+
+                <b-form-checkbox-group id="form-locked-edit-input"
+                              v-model="editForm.items[index].status"
+                >
+                  <b-form-checkbox value="true">Done</b-form-checkbox>
+                </b-form-checkbox-group>
+              </b-form-group>
+            </td>
+          </tr>
+        </table>
+
 
         <b-button type="submit" variant="primary">Update</b-button>
         <b-button type="reset" variant="danger">Cancel</b-button>
