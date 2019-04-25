@@ -86,37 +86,16 @@
             username="Add a new todolist"
             hide-footer>
       <b-form @submit="onSubmit" @reset="onReset" class="w-100">
-        <b-form-group id="form-username-group"
-                      label="username:"
-                      label-for="form-username-input">
-            <b-form-input id="form-username-input"
+        <b-form-group id="form-todolist-group"
+                      label="name:"
+                      label-for="form-todolist-input">
+            <b-form-input id="form-todolist-input"
                           type="text"
-                          v-model="addtodolistForm.username"
+                          v-model="addtodolistForm.name"
                           required
-                          placeholder="Enter username">
+                          placeholder="Enter Todolist name">
             </b-form-input>
         </b-form-group>
-        <b-form-group id="form-email-group"
-                      label="email:"
-                      label-for="form-email-input">
-          <b-form-input id="form-email-input"
-                        type="email"
-                        v-model="addtodolistForm.email"
-                        required
-                        placeholder="Enter email">
-          </b-form-input>
-        </b-form-group>
-        <b-form-group id="form-pic-group"
-                      label="Purchase pic:"
-                      label-for="form-pic-input">
-          <b-form-input id="form-pic-input"
-                        type="text"
-                        v-model="addtodolistForm.pic"
-                        required
-                        placeholder="Enter pic">
-          </b-form-input>
-        </b-form-group>
-
         <b-button type="submit" variant="primary">Submit</b-button>
         <b-button type="reset" variant="danger">Reset</b-button>
       </b-form>
@@ -225,7 +204,7 @@ export default {
     },
     addtodolist(payload) {
       const path = `http://localhost:5000/todolists?token=${this.token}`;
-      payload.append({ token: this.token });
+      payload['token']=this.token;
       axios.post(path, payload).then(() => {
         this.gettodolist();
         this.message = 'todolist added!';
@@ -238,7 +217,7 @@ export default {
     },
     updatetodolist(payload, todolistID) {
       const path = `http://localhost:5000/${todolistID}`;
-      payload.append({ token: this.token });
+      payload['token']=this.token;
       axios.put(path, payload).then(() => {
         this.gettodolist();
         this.message = 'todolist updated!';

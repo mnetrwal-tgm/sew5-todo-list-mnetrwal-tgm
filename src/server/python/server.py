@@ -33,6 +33,14 @@ TODOLISTS = [
         'items': [
             {'name': 'Bin am Laufen','status':True}, {'name': 'Ich bin done','status':False}
         ]
+    },
+{
+        'id': uuid.uuid4().hex,
+        'name': 'Test2',
+        'lock': False,
+        'items': [
+            {'name': 'Bin am Laufen','status':True}, {'name': 'Ich bin done','status':False}
+        ]
     }
 ]
 
