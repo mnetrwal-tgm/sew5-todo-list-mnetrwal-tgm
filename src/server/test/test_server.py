@@ -65,11 +65,54 @@ def test_get_items(client,authtoken,saneid):
     assert 200 == res.status_code
 
 # Post
+# Don't work for some reason. I don't fucking know why, but werkzeug doesn't like post
 
 def test_post_list(client,authtoken):
-    res = client.post('/todolists?token=%s'%authtoken, json=json.dumps({'name':'Ich Bin Ein Test'}))
+    data={'name':'Ich Bin Ein Test'}
+    res = client.post('/todolists?token=%s'%authtoken, json=data)
     assert 201 == res.status_code
 
 def test_post_item(client,authtoken,saneid):
-    res = client.post('/%s/items?token=%s'%(saneid,authtoken),json=json.dumps({'name':'Ich Bin Ein Test'}))
+    res = client.post('/%s/items?token=%s'%(saneid,authtoken),json={'name':'Ich Bin Ein Test'})
+    assert 201 == res.status_code
+
+# Put
+
+def test_put_list(client,authtoken,saneid):
+    res = client.get('/%s?token=%s' % (saneid, authtoken))
+    data=res.data
+    data['name']="Lorem"
+    res = client.put('/%s?token=%s'%(saneid,authtoken), json=data)
+    assert 200 == res.status_code
+
+def test_put_item(client,authtoken,saneid):
+    res = client.get('/%s?token=%s' % (saneid, authtoken))
+    data=res.data
+    data['items'][0]['status']=False
+    itname=data['items'][0]['name']
+    res = client.put('/%s/%s?token=%s'%(saneid,itname,authtoken), json=data['items'][0])
+    assert 200 == res.status_code
+
+# Lock
+
+def test_lock(client,authtoken,saneid):
+    res = client.get('/%s?token=%s' % (saneid, authtoken))
+    data = res.data
+    data['lock'] = True
+    res = client.put('/%s?token=%s' % (saneid, authtoken), json=data)
+    assert 200 == res.status_code
+    res = client.put('/%s?token=%s' % (saneid, authtoken), json=data)
+    assert 400 == res.status_code
+
+# Delete
+
+def test_delete_item(client,authtoken,saneid):
+    res = client.get('/%s?token=%s' % (saneid, authtoken))
+    data = res.data
+    itname = data['items'][0]['name']
+    res = client.delete('/%s/%s?token=%s' % (saneid, itname, authtoken))
+    assert 200 == res.status_code
+
+def test_delete_list(client,authtoken,saneid):
+    res = client.delete('/%s?token=%s' % (saneid, authtoken))
     assert 200 == res.status_code

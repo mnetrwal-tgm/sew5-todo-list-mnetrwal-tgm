@@ -93,11 +93,6 @@ def ping_pong():
     return "pong",status.HTTP_200_OK
 
 
-def checkListName(post_data):
-    if post_data['name'] != "":
-        return True
-    else:
-        return False
 
 def checkItemOnList(listid,post_data):
     ret=False
@@ -117,17 +112,14 @@ def checkItemOnList(listid,post_data):
 def all_lists():
     if request.method == 'POST':
         post_data = request.get_json()
-        if checkListName(post_data):
-            TODOLISTS.append({
-                'id': uuid.uuid4().hex,
-                'name': post_data.get('name'),
-                'lock': False,
-                'items': []
-            })
-            saveData()
-            return status.HTTP_201_CREATED
-        else:
-            return status.HTTP_406_NOT_ACCEPTABLE
+        TODOLISTS.append({
+            'id': uuid.uuid4().hex,
+            'name': post_data.get('name'),
+            'lock': False,
+            'items': []
+        })
+        saveData()
+        return status.HTTP_201_CREATED
     else:
         return json.dumps(TODOLISTS), status.HTTP_200_OK
 
@@ -146,12 +138,9 @@ def single_todolist(listid):
         for idx,list in enumerate(TODOLISTS):
             if list['id']==listid:
                 if not list['lock']:
-                    if post_data['name'] and checkListName(post_data):
-                        list['name'] = post_data['name']
-                    if post_data['lock']:
-                        list['lock'] = post_data['lock']
-                    if post_data['items']:
-                        list['items'] = post_data['items']
+                    list['name'] = post_data['name']
+                    list['lock'] = post_data['lock']
+                    list['items'] = post_data['items']
                 elif list['lock'] != post_data['lock']:
                     list['lock'] = not post_data['lock']
                 else:
