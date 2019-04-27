@@ -17,8 +17,6 @@ from passlib.apps import custom_app_context as pwd_context
 # configuration
 DEBUG = True
 
-
-
 # instantiate the app
 app = Flask(__name__,static_folder="../../client/dist/static",template_folder="../../client/dist")
 app.config.from_object(__name__)
