@@ -92,11 +92,12 @@ def login():
                 authcorrect=True
                 break
         if authcorrect:
-            token=jwt.encode({'user': auth.username, 'exp':datetime.datetime.utcnow()+datetime.timedelta(hours=1)}, app.config['SECRET_KEY'])
+            token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow()+datetime.timedelta(hours=1)}, app.config['SECRET_KEY'])
             return json.dumps({'token':token.decode("UTF-8")}),status.HTTP_200_OK
-        return status.HTTP_401_UNAUTHORIZED
-    except:
-        return status.HTTP_400_BAD_REQUEST
+        return '',status.HTTP_401_UNAUTHORIZED
+    except Exception as e:
+        print(e)
+        return '',status.HTTP_400_BAD_REQUEST
 
 # sanity check route
 @app.route('/ping', methods=['GET'])
@@ -240,5 +241,6 @@ def saveData():
 
 
 if __name__ == '__main__':
+    #app.run(port=5000)
     http_server=WSGIServer(('',5000),app)
     http_server.serve_forever()

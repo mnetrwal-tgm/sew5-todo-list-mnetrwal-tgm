@@ -1,0 +1,10 @@
+uuid
+pyjwt
+datetime
+gevent
+flask
+flask_api
+flask_cors
+passlib
+pytest
+setuptools
