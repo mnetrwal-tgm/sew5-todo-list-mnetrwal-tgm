@@ -7,4 +7,5 @@ flask_api
 flask_cors
 passlib
 pytest
+pytest-html
 setuptools

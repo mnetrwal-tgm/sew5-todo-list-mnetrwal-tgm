@@ -100,13 +100,41 @@ Um Backend Testing auszuführen einfach tox im project directory eingeben.
 Frontend testing der Weboberfläche wird mittels "npx cypress open" im dafür gewählten directory gestarted.
 Sowohl der Server als auch die Weboberfläche müssen hierbei natürlich laufen.
 
-#### Travis CI
+#### Travis-CI
 
-TODO
+Travis-CI ist wie der Name schon preisgibt ein Continous Integration Tool.
+
+Um es mit dem Projekt zu verknüpfen muss man auf der [Website](travis-ci.com) das Github-Repository verknüpfen und in ihm ein '.travis.yml' erstellen.
+
+##### [.travis.yml](.travis.yml)
+
+In diesem File wird angegeben wie die Tests in Travis-CI ausgeführt werden hierfür muss eine Sprache wiefolgt festgelegt werden:
+
+    language: python
+    python:
+        - "3.7"
+
+Im Fall von python 3.7 und höher wird der folgende Zusatz benötigt:
+
+    dist: xenial
+
+ Es folgt die deklaration der Packages. Da tox verwendet wird und dies die nötigen Packages installierren wird, wird nur folgendes Package installiert
+
+    install:
+        - pip install tox-travis
+
+Zuletzt muss angegeben werden welche commands ausgeführt werden sollen:
+
+    script:
+        - tox
 
 #### Erstellen von Logs
 
-TODO
+Mittels pytest-html kann ein log-file erstellt werden. Hierzu wird in der tox.ini der Aufruf von pytest wiefolgt erweitert:
+
+    pytest --html=testlogs/report.html --self-contained-html
+
+Einen solchen Testreport findet man [hier](https://htmlpreview.github.io/?https://github.com/mnetrwal-tgm/sew5-todo-list-mnetrwal-tgm/blob/master/report.html).
 
 ## Quellen
 [Flask Rest](https://flask-restful.readthedocs.io/en/latest/quickstart.html#full-example)
@@ -118,3 +146,5 @@ TODO
 [Vue CLI 3 - Creating our Project](https://www.vuemastery.com/courses/real-world-vue-js/vue-cli/)
 
 [Cypress webpage](https://www.cypress.io/)
+
+[Travis CI](travis-ci.com)
