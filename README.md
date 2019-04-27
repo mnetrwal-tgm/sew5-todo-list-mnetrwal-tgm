@@ -134,7 +134,7 @@ Mittels pytest-html kann ein log-file erstellt werden. Hierzu wird in der tox.in
 
     pytest --html=testlogs/report.html --self-contained-html
 
-Einen solchen Testreport findet man [hier](https://htmlpreview.github.io/?https://github.com/mnetrwal-tgm/sew5-todo-list-mnetrwal-tgm/blob/master/report.html).
+Einen solchen Testreport findet man [hier](https://htmlpreview.github.io/?https://github.com/mnetrwal-tgm/sew5-todo-list-mnetrwal-tgm/blob/master/testlogs/report.html).
 
 ## Quellen
 [Flask Rest](https://flask-restful.readthedocs.io/en/latest/quickstart.html#full-example)
