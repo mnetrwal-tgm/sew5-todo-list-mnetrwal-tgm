@@ -72,7 +72,7 @@ Axios erlaubt vue.js die python-flask application anzusprechen.
 
 ### Deployment
 
-Man deployed um Klartextzugriff auf eine App zu vermeiden.
+Wir verwenden deployment-tools um Klartextzugriff auf unsere Apps zu vermeiden
 
 #### Weboberfläche
 
@@ -92,6 +92,12 @@ Wenn man die Weboberfläche damit verknüpfen will passt man außerdem noch folg
 
     #app = Flask(__name__)
     app = Flask(__name__,static_folder="../../client/dist/static",template_folder="../../client/dist")
+
+Man kann nun eine Route zu der Weboberfläche legen:
+
+    @app.route('/')
+    def index():
+        return render_template('index.html')
 
 ### Testing
 

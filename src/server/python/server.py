@@ -15,7 +15,7 @@ from passlib.apps import custom_app_context as pwd_context
 
 
 # configuration
-DEBUG = True
+DEBUG = False
 
 # instantiate the app
 app = Flask(__name__,static_folder="../../client/dist/static",template_folder="../../client/dist")
@@ -241,6 +241,8 @@ def saveData():
 
 
 if __name__ == '__main__':
-    #app.run(port=5000)
-    http_server=WSGIServer(('',5000),app)
-    http_server.serve_forever()
+    if DEBUG:
+        app.run(port=5000)
+    else:
+        http_server=WSGIServer(('',5000),app)
+        http_server.serve_forever()
